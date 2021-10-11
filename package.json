@@ -1,0 +1,56 @@
+{
+  "name": "navmesh-generator",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "A library for generating navigation meshes from obstacles in JS",
+  "main": "dist/navmeshgenerator.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "test": "karma start --browsers ChromeHeadless --single-run",
+    "test:watch": "karma start --browsers ChromeHeadless",
+    "test:firefox": "karma start --browsers Firefox --single-run",
+    "test:firefox:watch": "karma start --browsers Firefox",
+    "tsc": "tsc",
+    "build": "webpack --mode production",
+    "build:watch": "webpack --mode development --watch",
+    "prepublishOnly": "npm run build",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "check-format": "prettier --list-different \"src/**/*.ts\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/expect.js": "^0.3.29",
+    "@types/mocha": "^5.2.7",
+    "expect.js": "^0.3.1",
+    "karma": "^6.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-firefox-launcher": "^2.0.0",
+    "karma-mocha": "^1.3.0",
+    "karma-typescript": "latest",
+    "mocha": "^6.2.0",
+    "prettier": "2.1.2",
+    "typescript": "latest",
+    "webpack": "^5.40.0",
+    "webpack-cli": "^4.9.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "ts-loader": "^9.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d8h/navmesh-generator.git"
+  },
+  "keywords": [
+    "navigation mesh",
+    "path finding"
+  ],
+  "author": "Davy Helard",
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/d8h/navmesh-generator/issues"
+  },
+  "homepage": "https://github.com/d8h/navmesh-generator"
+}
