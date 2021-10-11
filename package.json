@@ -1,8 +1,8 @@
 {
   "name": "navmesh-generator",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "license": "MIT",
-  "description": "A library for generating navigation meshes from obstacles in JS",
+  "description": "A JS library for generating navigation meshes from obstacles",
   "main": "dist/navmeshgenerator.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -41,7 +41,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/d8h/navmesh-generator.git"
+    "url": "git+https://github.com/d8h/navmeshgenerator.git"
   },
   "keywords": [
     "navigation mesh",
@@ -50,7 +50,7 @@
   "author": "Davy Helard",
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/d8h/navmesh-generator/issues"
+    "url": "https://github.com/d8h/navmeshgenerator/issues"
   },
-  "homepage": "https://github.com/d8h/navmesh-generator"
+  "homepage": "https://github.com/d8h/navmeshgenerator"
 }

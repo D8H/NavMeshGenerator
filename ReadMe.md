@@ -27,18 +27,60 @@ The implementation used in this library differs with the following:
 ## Demonstrations
 
 ### An isometric example
-This is a modified version of an official example of GDevelop where a character moves to the pointer with a left click. The art was done by [Mickael Hoarau](https://www.youtube.com/channel/UC0Tm56J3LIj0PcjGQdvy_QA).
-[Try it in browser](https://games.gdevelop-app.com/game-4f902160-0daa-4db9-bfca-4d792309aa15/index.html)
-## An AI example
-This is a modified version of an official example of GDevelop where enemies follow you.
+This is a modified version of an official example of [GDevelop](https://gdevelop-app.com/) where a character moves to the pointer with a left click. The art was done by [Mickael Hoarau](https://www.youtube.com/channel/UC0Tm56J3LIj0PcjGQdvy_QA).
+
+[Try it in browser](https://games.gdevelop-app.com/game-4f902160-0daa-4db9-bfca-4d792309aa15/index.html) (it might make some sounds)
+
+![GDevelopNavMeshTiny](https://user-images.githubusercontent.com/2611977/136819963-cd38ef54-070a-4aec-9acd-a521d85e5dbc.png)
+
+### An AI example
+This is a modified version of an official example of [GDevelop](https://gdevelop-app.com/) where enemies follow the player.
+
 [Try it in browser](https://games.gdevelop-app.com/game-05f6bf02-0a65-4cc9-bb77-c7c7e0b3c1ce/index.html)
 ### Squares at random positions
 [Try it in browser](https://games.gdevelop-app.com/game-3dfb74dc-38a8-4475-bef9-bf1ae8424125/index.html)
 ### Two sizes of moving objects and obstacle dragging
 [Try it in browser](https://games.gdevelop-app.com/game-e5bac69a-0625-45fa-b523-45981aa74518/index.html)
 
+## How to use it
+The algorithm builds a mesh from a given area and a list of polygon obstacles.
+```JavaScript
+import { NavMeshGenerator } from "navmeshgenerator";
+
+const obstacles = [[
+  { x: 300, y: 200 },
+  { x: 500, y: 200 },
+  { x: 500, y: 400 },
+  { x: 300, y: 400 },
+]];
+const obstacleCellPadding = 0;
+const areaLeftBound = 0;
+const areaTopBound = 0;
+const areaRightBound = 800;
+const areaBottomBound = 600;
+const rasterizationCellSize = 10;
+const navMeshPolygons = NavMeshGenerator.buildNavMesh(
+  obstacles.values(),
+  obstacleCellPadding,
+  areaLeftBound,
+  areaTopBound,
+  areaRightBound,
+  areaBottomBound,
+  rasterizationCellSize
+);
+```
+If you are using [mikewesthad/navmesh](https://github.com/mikewesthad/navmesh), you can directly use the mesh to find paths.
+```JavaScript
+const navMesh = new NavMesh(navMeshPolygons);
+const path = navMesh.findPath({ x: 100, y: 300 }, { x: 700, y: 300 });
+```
+In this case, you need this additional import.
+```JavaScript
+import { NavMesh } from "navmesh";
+```
+
 ## Changelog
 
-Version 0.1.0
+Version 1.0.0
 
 - First version
