@@ -23,17 +23,23 @@ import { RegionGenerator } from "./RegionGenerator";
 // https://github.com/recastnavigation/recastnavigation
 
 export class NavMeshGenerator {
-  static buildNavMesh(
-    obstacles: IterableIterator<VertexArray>,
-    obstacleCellPadding: integer,
+  private grid: RasterizationGrid;
+  private isometricRatio: float;
+  private obstacleRasterizer: ObstacleRasterizer;
+  private regionGenerator: RegionGenerator;
+  private contourBuilder: ContourBuilder;
+  private convexPolygonGenerator: ConvexPolygonGenerator;
+  private gridCoordinateConverter: GridCoordinateConverter;
+
+  constructor(
     areaLeftBound: float,
     areaTopBound: float,
     areaRightBound: float,
     areaBottomBound: float,
     rasterizationCellSize: float,
     isometricRatio: float = 1
-  ): VertexArray[] {
-    const grid = new RasterizationGrid(
+  ) {
+    this.grid = new RasterizationGrid(
       areaLeftBound,
       areaTopBound,
       areaRightBound,
@@ -42,27 +48,40 @@ export class NavMeshGenerator {
       // make cells square in the world
       rasterizationCellSize / isometricRatio
     );
-    ObstacleRasterizer.rasterizeObstacles(grid, obstacles);
-    RegionGenerator.generateDistanceField(grid);
-    RegionGenerator.generateRegions(grid, obstacleCellPadding);
+    this.isometricRatio = isometricRatio;
+    this.obstacleRasterizer = new ObstacleRasterizer();
+    this.regionGenerator = new RegionGenerator();
+    this.contourBuilder = new ContourBuilder();
+    this.convexPolygonGenerator = new ConvexPolygonGenerator();
+    this.gridCoordinateConverter = new GridCoordinateConverter();
+  }
+
+  buildNavMesh(
+    obstacles: IterableIterator<VertexArray>,
+    obstacleCellPadding: integer
+  ): VertexArray[] {
+    this.grid.clear();
+    this.obstacleRasterizer.rasterizeObstacles(this.grid, obstacles);
+    this.regionGenerator.generateDistanceField(this.grid);
+    this.regionGenerator.generateRegions(this.grid, obstacleCellPadding);
     // It's probably not a good idea to expose the vectorization threshold.
     // As stated in the parameter documentation, the value 1 gives good
     // results in any situations.
     const threshold = 1;
-    const contours = ContourBuilder.buildContours(grid, threshold);
-    const meshField = ConvexPolygonGenerator.splitToConvexPolygons(
+    const contours = this.contourBuilder.buildContours(this.grid, threshold);
+    const meshField = this.convexPolygonGenerator.splitToConvexPolygons(
       contours,
       16
     );
-    const scaledMeshField = GridCoordinateConverter.convertFromGridBasis(
-      grid,
+    const scaledMeshField = this.gridCoordinateConverter.convertFromGridBasis(
+      this.grid,
       meshField
     );
-    if (isometricRatio != 1) {
+    if (this.isometricRatio != 1) {
       // Rescale the mesh to have the same unit length on the 2 axis for the pathfinding.
       scaledMeshField.forEach((polygon) =>
         polygon.forEach((point) => {
-          point.y *= isometricRatio;
+          point.y *= this.isometricRatio;
         })
       );
     }

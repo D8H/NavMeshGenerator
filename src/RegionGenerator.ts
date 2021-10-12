@@ -13,8 +13,28 @@ import { RasterizationGrid } from "./RasterizationGrid";
  * Region Generation: http://www.critterai.org/projects/nmgen_study/regiongen.html
  */
 export class RegionGenerator {
-  //TODO implement the smoothing pass on the distance field?
+  obstacleRegionBordersCleaner: ObstacleRegionBordersCleaner;
+  /**
+   * Contains a list of cells that are considered to be flooded and
+   * therefore are ready to be processed. This list may contain nulls
+   * at certain points in the process. Nulls indicate cells that were
+   * initially in the list but have been successfully added to a region.
+   * The initial size is arbitrary.
+   */
+  floodedCells: Array<RasterizationCell | null>;
+  /**
+   * A predefined stack for use in the flood operation. Its content
+   * has no meaning outside the new region flooding operation.
+   */
+  workingStack: Array<RasterizationCell>;
 
+  constructor() {
+    this.obstacleRegionBordersCleaner = new ObstacleRegionBordersCleaner();
+    this.floodedCells = new Array<RasterizationCell | null>(1024);
+    this.workingStack = new Array<RasterizationCell>(1024);
+  }
+
+  //TODO implement the smoothing pass on the distance field?
   /**
    * Groups cells into cohesive regions using an watershed based algorithm.
    *
@@ -26,10 +46,7 @@ export class RegionGenerator {
    * @param obstacleCellPadding a padding in cells to apply around the
    * obstacles.
    */
-  static generateRegions(
-    grid: RasterizationGrid,
-    obstacleCellPadding: integer
-  ) {
+  generateRegions(grid: RasterizationGrid, obstacleCellPadding: integer) {
     // Watershed Algorithm
     //
     // Reference: http://en.wikipedia.org/wiki/Watershed_%28algorithm%29
@@ -80,18 +97,10 @@ export class RegionGenerator {
     // (todo from the CritterAI sources).
     const expandIterations: integer = 4 + distanceMin * 2;
 
-    // Contains a list of cells that are considered to be flooded and
-    // therefore are ready to be processed. This list may contain nulls
-    // at certain points in the process. Nulls indicate cells that were
-    // initially in the list but have been successfully added to a region.
-    // The initial size is arbitrary.
-    let floodedCells = new Array<RasterizationCell | null>(1024);
-    // A predefined stack for use in the flood operation. Its content
-    // has no meaning outside the new region flooding operation.
-    let workingStack = new Array<RasterizationCell>(1024);
-
     // Zero is reserved for the obstacle-region. So initializing to 1.
     let nextRegionID = 1;
+
+    const floodedCells = this.floodedCells;
 
     // Search until the current distance reaches the minimum allowed
     // distance.
@@ -131,9 +140,9 @@ export class RegionGenerator {
         // At least one region has already been created, so first
         // try to  put the newly flooded cells into existing regions.
         if (distance > 0) {
-          RegionGenerator.expandRegions(grid, floodedCells, expandIterations);
+          this.expandRegions(grid, floodedCells, expandIterations);
         } else {
-          RegionGenerator.expandRegions(grid, floodedCells, -1);
+          this.expandRegions(grid, floodedCells, -1);
         }
       }
 
@@ -157,15 +166,7 @@ export class RegionGenerator {
         // no cell could be added to it later because of the conservative
         // constraint.
         const fillTo = Math.max(distance - 2, distanceMin + 1, 1);
-        if (
-          RegionGenerator.floodNewRegion(
-            grid,
-            floodedCell,
-            fillTo,
-            nextRegionID,
-            workingStack
-          )
-        ) {
+        if (this.floodNewRegion(grid, floodedCell, fillTo, nextRegionID)) {
           nextRegionID++;
         }
       }
@@ -191,14 +192,14 @@ export class RegionGenerator {
     // Perform a final expansion of existing regions.
     // Allow more iterations than normal for this last expansion.
     if (distanceMin > 0) {
-      RegionGenerator.expandRegions(grid, floodedCells, expandIterations * 8);
+      this.expandRegions(grid, floodedCells, expandIterations * 8);
     } else {
-      RegionGenerator.expandRegions(grid, floodedCells, -1);
+      this.expandRegions(grid, floodedCells, -1);
     }
 
     grid.regionCount = nextRegionID;
 
-    ObstacleRegionBordersCleaner.fixObstacleRegion(grid);
+    this.obstacleRegionBordersCleaner.fixObstacleRegion(grid);
     //TODO Also port FilterOutSmallRegions?
     // The algorithm to remove vertices in the middle (added at the end of
     // ContourBuilder.buildContours) may already filter them and contour are
@@ -218,7 +219,7 @@ export class RegionGenerator {
    * to new regions.
    * @param maxIterations If set to -1, will iterate through completion.
    */
-  private static expandRegions(
+  private expandRegions(
     grid: RasterizationGrid,
     inoutCells: Array<RasterizationCell | null>,
     iterationMax: integer
@@ -314,18 +315,15 @@ export class RegionGenerator {
    * @param fillToDist The watershed distance to flood to.
    * @param regionID The region ID to use for the new region
    * (if creation is successful).
-   * @param workingStack A stack used internally. The content is
-   * cleared before use. Its content has no meaning outside of
-   * this operation.
    * @return true if a new region was created.
    */
-  private static floodNewRegion(
+  private floodNewRegion(
     grid: RasterizationGrid,
     rootCell: RasterizationCell,
     fillToDist: integer,
-    regionID: integer,
-    workingStack: Array<RasterizationCell>
+    regionID: integer
   ) {
+    const workingStack = this.workingStack;
     workingStack.length = 0;
     workingStack.push(rootCell);
     rootCell.regionID = regionID;
@@ -405,7 +403,7 @@ export class RegionGenerator {
    *
    * @param grid A field with cells obstacle information already generated.
    */
-  static generateDistanceField(grid: RasterizationGrid) {
+  generateDistanceField(grid: RasterizationGrid) {
     // close borders
     for (let x = 0; x < grid.dimX(); x++) {
       const leftCell = grid.get(x, 0);
@@ -508,6 +506,16 @@ export class RegionGenerator {
  * Region Generation: http://www.critterai.org/projects/nmgen_study/regiongen.html
  */
 class ObstacleRegionBordersCleaner {
+  private workingUpLeftOpenCells: RasterizationCell[];
+  private workingDownRightOpenCells: RasterizationCell[];
+  private workingOpenCells: RasterizationCell[];
+
+  constructor() {
+    this.workingUpLeftOpenCells = new Array<RasterizationCell>(512);
+    this.workingDownRightOpenCells = new Array<RasterizationCell>(512);
+    this.workingOpenCells = new Array<RasterizationCell>(512);
+  }
+
   /**
    * This operation utilizes {@link RasterizationCell.contourFlags}. It
    * expects the value to be zero on entry, and re-zero's the value
@@ -515,12 +523,12 @@ class ObstacleRegionBordersCleaner {
    *
    * @param grid a grid with fully built regions.
    */
-  public static fixObstacleRegion(grid: RasterizationGrid) {
-    const workingUpLeftOpenCells = new Array<RasterizationCell>(512);
+  public fixObstacleRegion(grid: RasterizationGrid) {
+    const workingUpLeftOpenCells = this.workingUpLeftOpenCells;
     workingUpLeftOpenCells.length = 0;
-    const workingDownRightOpenCells = new Array<RasterizationCell>(512);
+    const workingDownRightOpenCells = this.workingDownRightOpenCells;
     workingDownRightOpenCells.length = 0;
-    const workingOpenCells = new Array<RasterizationCell>(512);
+    const workingOpenCells = this.workingOpenCells;
     workingOpenCells.length = 0;
     const extremeCells: [RasterizationCell | null, RasterizationCell | null] = [
       null,
@@ -550,10 +558,7 @@ class ObstacleRegionBordersCleaner {
         }
         // This is a obstacle region cell. See if it
         // connects to a cell in a non-obstacle region.
-        edgeDirection = ObstacleRegionBordersCleaner.getNonNullBorderDirection(
-          grid,
-          cell
-        );
+        edgeDirection = this.getNonNullBorderDirection(grid, cell);
         if (edgeDirection === -1)
           // This cell is not a border cell. Ignore it.
           continue;
@@ -566,7 +571,7 @@ class ObstacleRegionBordersCleaner {
         // Process the obstacle region contour. Detect and fix
         // local issues. Determine if the region is
         // fully encompassed by a single non-obstacle region.
-        const isEncompassedNullRegion = ObstacleRegionBordersCleaner.processNullRegion(
+        const isEncompassedNullRegion = this.processNullRegion(
           grid,
           workingCell,
           edgeDirection,
@@ -577,14 +582,11 @@ class ObstacleRegionBordersCleaner {
           // This cell is part of a group of obstacle region cells
           // that is encompassed within a single non-obstacle region.
           // This is not permitted. Need to fix it.
-          ObstacleRegionBordersCleaner.partialFloodRegion(
+          this.partialFloodRegion(
             grid,
             extremeCells[0]!,
             extremeCells[1]!,
-            nextRegionID,
-            workingUpLeftOpenCells,
-            workingDownRightOpenCells,
-            workingOpenCells
+            nextRegionID
           );
           nextRegionID++;
         }
@@ -615,15 +617,15 @@ class ObstacleRegionBordersCleaner {
    * @param newRegionID The region id to assign the flooded
    * cells to.
    */
-  private static partialFloodRegion(
+  private partialFloodRegion(
     grid: RasterizationGrid,
     upLeftCell: RasterizationCell,
     downRightCell: RasterizationCell,
-    newRegionID: integer,
-    upLeftOpenCells: RasterizationCell[],
-    downRightOpenCells: RasterizationCell[],
-    workingOpenCells: RasterizationCell[]
+    newRegionID: integer
   ): void {
+    let upLeftOpenCells = this.workingUpLeftOpenCells;
+    let downRightOpenCells = this.workingDownRightOpenCells;
+    let workingOpenCells = this.workingOpenCells;
     // The implementation differs from CritterAI to avoid non-contiguous
     // sections. Instead of brushing in one direction, it floods from
     // 2 extremities of the encompassed obstacle region.
@@ -706,7 +708,7 @@ class ObstacleRegionBordersCleaner {
    * @return TRUE if the start cell's region completely encompasses
    * the obstacle region.
    */
-  private static processNullRegion(
+  private processNullRegion(
     grid: RasterizationGrid,
     startCell: RasterizationCell,
     startDirection: integer,
@@ -809,13 +811,7 @@ class ObstacleRegionBordersCleaner {
           stepsWithoutBorder = 0;
           // Detect and fix cell configuration issue around this
           // corner.
-          if (
-            ObstacleRegionBordersCleaner.processOuterCorner(
-              grid,
-              cell,
-              direction
-            )
-          )
+          if (this.processOuterCorner(grid, cell, direction))
             // A change was made and it resulted in the
             // corner area having multiple region connections.
             hasSingleConnection = false;
@@ -873,7 +869,7 @@ class ObstacleRegionBordersCleaner {
    * in the vicinity of the corner (this may or may not be due to
    * a change made by this operation).
    */
-  private static processOuterCorner(
+  private processOuterCorner(
     grid: RasterizationGrid,
     referenceCell: RasterizationCell,
     borderDirection: integer
@@ -979,7 +975,7 @@ class ObstacleRegionBordersCleaner {
       //  b b x x <- Change to this row.
       //  b a a a
       // Check to see if backTwo should be in a different region.
-      let selectedRegion = ObstacleRegionBordersCleaner.selectedRegionID(
+      let selectedRegion = this.selectedRegionID(
         grid,
         backTwo,
         (borderDirection + 1) & 0x3,
@@ -988,7 +984,7 @@ class ObstacleRegionBordersCleaner {
       if (selectedRegion === backTwo.regionID) {
         // backTwo should not be re-assigned. How about
         // the reference cell?
-        selectedRegion = ObstacleRegionBordersCleaner.selectedRegionID(
+        selectedRegion = this.selectedRegionID(
           grid,
           referenceCell,
           borderDirection,
@@ -1026,7 +1022,7 @@ class ObstacleRegionBordersCleaner {
    * @return The region the cell should be a member of. May be the
    * region the cell is currently a member of.
    */
-  private static selectedRegionID(
+  private selectedRegionID(
     grid: RasterizationGrid,
     referenceCell: RasterizationCell,
     borderDirection: integer,
@@ -1128,7 +1124,7 @@ class ObstacleRegionBordersCleaner {
    * @return The direction of the first neighbor in a non-obstacle region, or
    * -1 if all neighbors are in the obstacle region.
    */
-  private static getNonNullBorderDirection(
+  private getNonNullBorderDirection(
     grid: RasterizationGrid,
     cell: RasterizationCell
   ): integer {

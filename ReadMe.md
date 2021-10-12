@@ -45,7 +45,20 @@ This is a modified version of an official example of [GDevelop](https://gdevelop
 ## How to use it
 The algorithm builds a mesh from a given area and a list of polygon obstacles.
 ```JavaScript
-import { NavMeshGenerator } from "navmeshgenerator";
+import { NavMeshGenerator } from "NavMeshGenerator";
+
+const areaLeftBound = 0;
+const areaTopBound = 0;
+const areaRightBound = 800;
+const areaBottomBound = 600;
+const rasterizationCellSize = 10;
+const navMeshGenerator = new NavMeshGenerator(
+  areaLeftBound,
+  areaTopBound,
+  areaRightBound,
+  areaBottomBound,
+  rasterizationCellSize
+);
 
 const obstacles = [[
   { x: 300, y: 200 },
@@ -54,19 +67,9 @@ const obstacles = [[
   { x: 300, y: 400 },
 ]];
 const obstacleCellPadding = 0;
-const areaLeftBound = 0;
-const areaTopBound = 0;
-const areaRightBound = 800;
-const areaBottomBound = 600;
-const rasterizationCellSize = 10;
-const navMeshPolygons = NavMeshGenerator.buildNavMesh(
+const navMeshPolygons = navMeshGenerator.buildNavMesh(
   obstacles.values(),
-  obstacleCellPadding,
-  areaLeftBound,
-  areaTopBound,
-  areaRightBound,
-  areaBottomBound,
-  rasterizationCellSize
+  obstacleCellPadding
 );
 ```
 If you are using [mikewesthad/navmesh](https://github.com/mikewesthad/navmesh), you can directly use the mesh to find paths.

@@ -9,7 +9,7 @@ export class GridCoordinateConverter {
    * @param scaleY for isometry
    * @returns the position on the scene
    */
-  public static convertFromGridBasis(
+  public convertFromGridBasis(
     grid: RasterizationGrid,
     polygons: Point[][]
   ): Point[][] {

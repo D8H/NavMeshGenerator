@@ -6,16 +6,21 @@ import { RasterizationGrid } from "./RasterizationGrid";
  * It flags cells as obstacle to be used by {@link RegionGenerator}.
  */
 export class ObstacleRasterizer {
+  workingNodes: integer[];
+
+  constructor() {
+    this.workingNodes = new Array<integer>(8);
+  }
+
   /**
    * Rasterize obstacle objects on a grid.
    * @param grid
    * @param obstacles
    */
-  static rasterizeObstacles(
+  rasterizeObstacles(
     grid: RasterizationGrid,
     obstacles: IterableIterator<VertexArray>
   ) {
-    const workingNodes: number[] = [];
     for (const polygon of obstacles) {
       const vertices = polygon.map((vertex) => {
         const point = { x: 0, y: 0 };
@@ -36,25 +41,23 @@ export class ObstacleRasterizer {
       maxX = Math.min(Math.ceil(maxX), grid.dimX());
       minY = Math.max(Math.floor(minY), 0);
       maxY = Math.min(Math.ceil(maxY), grid.dimY());
-      ObstacleRasterizer.fillPolygon(
+      this.fillPolygon(
         vertices,
         minX,
         maxX,
         minY,
         maxY,
-        workingNodes,
         (x: integer, y: integer) => (grid.get(x, y).distanceToObstacle = 0)
       );
     }
   }
 
-  private static fillPolygon(
+  private fillPolygon(
     vertices: Point[],
     minX: integer,
     maxX: integer,
     minY: integer,
     maxY: integer,
-    workingNodes: number[],
     fill: (x: number, y: number) => void
   ) {
     // The following implementation of the scan-line polygon fill algorithm
@@ -69,13 +72,12 @@ export class ObstacleRasterizer {
     // - it is conservative to thin vertical or horizontal polygons
 
     let fillAnyPixels = false;
-    ObstacleRasterizer.scanY(
+    this.scanY(
       vertices,
       minX,
       maxX,
       minY,
       maxY,
-      workingNodes,
       (pixelY: integer, minX: float, maxX: float) => {
         for (let pixelX = minX; pixelX < maxX; pixelX++) {
           fillAnyPixels = true;
@@ -88,13 +90,12 @@ export class ObstacleRasterizer {
       return;
     }
 
-    ObstacleRasterizer.scanY(
+    this.scanY(
       vertices,
       minX,
       maxX,
       minY,
       maxY,
-      workingNodes,
       (pixelY: integer, minX: float, maxX: float) => {
         // conserve thin (less than one cell large) horizontal polygons
         if (minX === maxX) {
@@ -103,13 +104,12 @@ export class ObstacleRasterizer {
       }
     );
 
-    ObstacleRasterizer.scanX(
+    this.scanX(
       vertices,
       minX,
       maxX,
       minY,
       maxY,
-      workingNodes,
       (pixelX: integer, minY: float, maxY: float) => {
         for (let pixelY = minY; pixelY < maxY; pixelY++) {
           fill(pixelX, pixelY);
@@ -122,15 +122,15 @@ export class ObstacleRasterizer {
     );
   }
 
-  private static scanY(
+  private scanY(
     vertices: Point[],
     minX: integer,
     maxX: integer,
     minY: integer,
     maxY: integer,
-    workingNodes: number[],
     checkAndFillY: (pixelY: integer, minX: float, maxX: float) => void
   ) {
+    const workingNodes = this.workingNodes;
     //  Loop through the rows of the image.
     for (let pixelY = minY; pixelY < maxY; pixelY++) {
       const pixelCenterY = pixelY + 0.5;
@@ -188,15 +188,15 @@ export class ObstacleRasterizer {
     }
   }
 
-  private static scanX(
+  private scanX(
     vertices: Point[],
     minX: integer,
     maxX: integer,
     minY: integer,
     maxY: integer,
-    workingNodes: number[],
     checkAndFillX: (pixelX: integer, minY: float, maxY: float) => void
   ) {
+    const workingNodes = this.workingNodes;
     //  Loop through the columns of the image.
     for (let pixelX = minX; pixelX < maxX; pixelX++) {
       const pixelCenterX = pixelX + 0.5;

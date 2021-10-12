@@ -43,10 +43,7 @@ export class ContourBuilder {
    *
    * @return The contours generated from the field.
    */
-  static buildContours(
-    grid: RasterizationGrid,
-    threshold: float
-  ): ContourPoint[][] {
+  buildContours(grid: RasterizationGrid, threshold: float): ContourPoint[][] {
     const contours = new Array<ContourPoint[]>(grid.regionCount);
     contours.length = 0;
     const contoursByRegion = new Array<ContourPoint[]>(grid.regionCount);
@@ -161,15 +158,10 @@ export class ContourBuilder {
         // We now have a cell that is part of a contour and a direction
         // that points to a different region (obstacle or real).
         // Build the contour.
-        ContourBuilder.buildRawContours(
-          grid,
-          cell,
-          startDirection,
-          workingRawVertices
-        );
+        this.buildRawContours(grid, cell, startDirection, workingRawVertices);
         // Perform post processing on the contour in order to
         // create the final, simplified contour.
-        ContourBuilder.generateSimplifiedContour(
+        this.generateSimplifiedContour(
           cell.regionID,
           workingRawVertices,
           workingSimplifiedVertices,
@@ -217,7 +209,7 @@ export class ContourBuilder {
       // They can be interesting for debugging.
     }
 
-    ContourBuilder.filterNonObstacleVertices(contours, contoursByRegion);
+    this.filterNonObstacleVertices(contours, contoursByRegion);
 
     return contours;
   }
@@ -232,7 +224,7 @@ export class ContourBuilder {
    * @param contoursByRegion Some regions may have been discarded
    * so contours index can't be used.
    */
-  private static filterNonObstacleVertices(
+  private filterNonObstacleVertices(
     contours: Array<ContourPoint[]>,
     contoursByRegion: Array<ContourPoint[]>
   ): void {
@@ -482,7 +474,7 @@ export class ContourBuilder {
    * @param outContourVertices The list of vertices that represent the edge
    * of the region.
    */
-  private static buildRawContours(
+  private buildRawContours(
     grid: RasterizationGrid,
     startCell: RasterizationCell,
     startDirection: number,
@@ -594,7 +586,7 @@ export class ContourBuilder {
    * @param threshold The maximum distance the edge of the contour may deviate
    * from the source geometry.
    */
-  private static generateSimplifiedContour(
+  private generateSimplifiedContour(
     regionID: number,
     sourceVertices: ContourPoint[],
     outVertices: ContourPoint[],
@@ -674,11 +666,7 @@ export class ContourBuilder {
       }
     }
 
-    ContourBuilder.matchObstacleRegionEdges(
-      sourceVertices,
-      outVertices,
-      threshold
-    );
+    this.matchObstacleRegionEdges(sourceVertices, outVertices, threshold);
 
     if (outVertices.length < 2) {
       // It will be ignored by the triangulation.
@@ -720,7 +708,7 @@ export class ContourBuilder {
    * @param threshold The maximum distance the edge of the contour may deviate
    * from the source geometry.
    */
-  private static matchObstacleRegionEdges(
+  private matchObstacleRegionEdges(
     sourceVertices: ContourPoint[],
     inoutResultVertices: ContourPoint[],
     threshold: float

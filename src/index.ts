@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module navmeshgenerator
+ * @module NavMeshGenerator
  */
 
 import { NavMeshGenerator } from "./NavMeshGenerator";

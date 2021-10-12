@@ -1,6 +1,6 @@
 {
   "name": "navmesh-generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "description": "A JS library for generating navigation meshes from obstacles",
   "main": "dist/navmeshgenerator.js",

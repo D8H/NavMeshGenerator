@@ -34,7 +34,7 @@ export class ConvexPolygonGenerator {
    * @param maxVerticesPerPolygon cap the vertex number in return polygons.
    * @return convex polygons.
    */
-  public static splitToConvexPolygons(
+  public splitToConvexPolygons(
     concavePolygons: Point[][],
     maxVerticesPerPolygon: integer
   ): Point[][] {
@@ -81,7 +81,7 @@ export class ConvexPolygonGenerator {
 
       // Triangulate the contour.
       let foundAnyTriangle = false;
-      ConvexPolygonGenerator.triangulate(
+      this.triangulate(
         contour,
         workingContourFlags,
         (p1: Point, p2: Point, p3: Point) => {
@@ -136,7 +136,7 @@ export class ConvexPolygonGenerator {
             ) {
               const polygonB = workingPolygons[indexB];
               // Can polyB merge with polyA?
-              ConvexPolygonGenerator.getPolyMergeInfo(
+              this.getPolyMergeInfo(
                 polygonA,
                 polygonB,
                 maxVerticesPerPolygon,
@@ -216,7 +216,7 @@ export class ConvexPolygonGenerator {
    * @param maxVerticesPerPolygon cap the vertex number in return polygons.
    * @param outResult contains merge information.
    */
-  private static getPolyMergeInfo(
+  private getPolyMergeInfo(
     polygonA: Point[],
     polygonB: Point[],
     maxVerticesPerPolygon: integer,
@@ -336,7 +336,7 @@ export class ConvexPolygonGenerator {
    * @return The number of triangles generated. Or, if triangulation
    * failed, a negative number.
    */
-  private static triangulate(
+  private triangulate(
     vertices: Array<Point>,
     vertexFlags: Array<boolean>,
     outTriangles: (p1: Point, p2: Point, p3: Point) => void

@@ -153,7 +153,7 @@ describe("NavMeshGenerator", function () {
   it("can build an empty mesh", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [createRectangle(160, 160, 400, 400)].values()
     );
@@ -179,7 +179,7 @@ describe("NavMeshGenerator", function () {
         "##################\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -202,7 +202,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -225,13 +225,13 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       []
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -242,7 +242,7 @@ describe("NavMeshGenerator", function () {
       []
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -257,7 +257,7 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh without any obstacle", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(grid, [].values());
+    new ObstacleRasterizer().rasterizeObstacles(grid, [].values());
     checkObstacles(
       grid, //
       "..................\n" +
@@ -280,7 +280,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -303,7 +303,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -326,7 +326,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -339,7 +339,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -357,7 +357,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -379,7 +379,7 @@ describe("NavMeshGenerator", function () {
   it("keeps the vertices of a square aligned on the grid", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [createRectangle(160, 160, 200, 160)].values()
     );
@@ -421,7 +421,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................................\n" +
@@ -460,7 +460,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................................\n" +
@@ -499,7 +499,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -524,7 +524,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -562,7 +562,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -606,14 +606,10 @@ describe("NavMeshGenerator", function () {
 
   it("can generate a NavMesh through the facade", function () {
     // The mesh is the same as the previous test case.
-    const navMesh = NavMeshGenerator.buildNavMesh(
+    const navMeshGenerator = new NavMeshGenerator(0, 0, 320, 320, 10);
+    const navMesh = navMeshGenerator.buildNavMesh(
       [createRectangle(160, 160, 200, 160)].values(),
-      0,
-      0,
-      0,
-      320,
-      320,
-      10
+      0
     );
     checkPolygons(
       navMesh.map((polygon) => polygon.map((point) => [point.x, point.y])),
@@ -648,13 +644,159 @@ describe("NavMeshGenerator", function () {
     );
   });
 
+  // It check that there is no side effect between 2 NavMesh builds.
+  it("can generate a 2nd NavMesh through the facade", function () {
+    // The meshes are the same as other test cases.
+    const navMeshGenerator = new NavMeshGenerator(0, 0, 320, 320, 10);
+    {
+      const navMesh = navMeshGenerator.buildNavMesh(
+        [createRectangle(160, 160, 200, 160)].values(),
+        0
+      );
+      checkPolygons(
+        navMesh.map((polygon) => polygon.map((point) => [point.x, point.y])),
+        [
+          [
+            [260, 80],
+            [260, 240],
+            [320, 250],
+            [320, 0],
+          ],
+          [
+            [0, 260],
+            [60, 240],
+            [60, 80],
+            [0, 0],
+          ],
+          [
+            [60, 80],
+            [260, 80],
+            [320, 0],
+            [0, 0],
+          ],
+          [
+            [0, 320],
+            [320, 320],
+            [320, 250],
+            [260, 240],
+            [60, 240],
+            [0, 260],
+          ],
+        ]
+      );
+    }
+    {
+      const horizontalRectangle = createRectangle(
+        160,
+        160,
+        200,
+        2,
+        Math.PI / 4
+      );
+      const verticalRectangle = createRectangle(160, 160, 2, 200, Math.PI / 4);
+
+      const navMesh = navMeshGenerator.buildNavMesh(
+        [horizontalRectangle, verticalRectangle].values(),
+        0
+      );
+
+      checkPolygons(
+        navMesh.map((polygon) => polygon.map((point) => [point.x, point.y])),
+        [
+          [
+            [0, 130],
+            [110, 120],
+            [90, 90],
+          ],
+          [
+            [90, 90],
+            [120, 110],
+            [130, 0],
+          ],
+          [
+            [90, 90],
+            [130, 0],
+            [0, 0],
+            [0, 130],
+          ],
+          [
+            [120, 110],
+            [150, 150],
+            [170, 150],
+            [200, 110],
+            [200, 0],
+            [130, 0],
+          ],
+          [
+            [200, 0],
+            [200, 110],
+            [230, 90],
+          ],
+          [
+            [230, 90],
+            [210, 120],
+            [320, 130],
+          ],
+          [
+            [230, 90],
+            [320, 130],
+            [320, 0],
+            [200, 0],
+          ],
+          [
+            [150, 170],
+            [150, 150],
+            [110, 120],
+            [0, 130],
+            [0, 200],
+            [90, 220],
+          ],
+          [
+            [210, 120],
+            [170, 150],
+            [170, 170],
+            [230, 220],
+            [320, 200],
+            [320, 130],
+          ],
+          [
+            [170, 170],
+            [150, 170],
+            [110, 220],
+            [130, 320],
+            [200, 320],
+            [220, 230],
+          ],
+          [
+            [130, 320],
+            [110, 220],
+            [90, 220],
+          ],
+          [
+            [0, 320],
+            [130, 320],
+            [90, 220],
+            [0, 200],
+          ],
+          [
+            [230, 220],
+            [220, 230],
+            [200, 320],
+            [320, 320],
+            [320, 200],
+          ],
+        ]
+      );
+    }
+  });
+
   it("keep obstacle region encompassed in another region", function () {
     const horizontalRectangle = createRectangle(160, 160, 200, 5, Math.PI / 4);
     const verticalRectangle = createRectangle(160, 160, 5, 200, Math.PI / 4);
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [horizontalRectangle, verticalRectangle].values()
     );
@@ -680,7 +822,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -705,7 +847,7 @@ describe("NavMeshGenerator", function () {
 
     // The flooding will make every cell in one region.
     // This region is splitted in 2 by ObstacleRegionBordersCleaner.partialFloodRegion
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -736,7 +878,7 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [horizontalRectangle, verticalRectangle].values()
     );
@@ -778,7 +920,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................................\n" +
@@ -817,7 +959,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................................\n" +
@@ -856,7 +998,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -899,7 +1041,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -975,7 +1117,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -1058,7 +1200,7 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [horizontalRectangle, verticalRectangle].values()
     );
@@ -1084,7 +1226,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -1107,7 +1249,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -1130,7 +1272,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -1169,7 +1311,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -1221,7 +1363,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -1280,7 +1422,7 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [horizontalRectangle, verticalRectangle].values()
     );
@@ -1322,7 +1464,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................................\n" +
@@ -1361,7 +1503,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................................\n" +
@@ -1400,7 +1542,7 @@ describe("NavMeshGenerator", function () {
         "..................................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -1469,7 +1611,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -1563,7 +1705,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -1661,7 +1803,7 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh for a diamond with vertices on cell border", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [createDiamond(160, 160, 160, 160)].values()
     );
@@ -1687,7 +1829,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -1710,7 +1852,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -1733,7 +1875,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -1765,7 +1907,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -1814,7 +1956,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );
@@ -1867,7 +2009,7 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh for diamond with vertices on cell center", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    ObstacleRasterizer.rasterizeObstacles(
+    new ObstacleRasterizer().rasterizeObstacles(
       grid,
       [createDiamond(170, 170, 160, 160)].values()
     );
@@ -1893,7 +2035,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateDistanceField(grid);
+    new RegionGenerator().generateDistanceField(grid);
     checkDistanceField(
       grid, //
       "..................\n" +
@@ -1916,7 +2058,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    RegionGenerator.generateRegions(grid, 0);
+    new RegionGenerator().generateRegions(grid, 0);
     checkRegions(
       grid, //
       "..................\n" +
@@ -1939,7 +2081,7 @@ describe("NavMeshGenerator", function () {
         "..................\n"
     );
 
-    const contours = ContourBuilder.buildContours(grid, 1);
+    const contours = new ContourBuilder().buildContours(grid, 1);
     checkPolygons(
       contours.map((polygon) => polygon.map((point) => [point.x, point.y])),
       [
@@ -1966,7 +2108,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const convexPolygons = ConvexPolygonGenerator.splitToConvexPolygons(
+    const convexPolygons = new ConvexPolygonGenerator().splitToConvexPolygons(
       contours,
       8
     );
@@ -2018,7 +2160,7 @@ describe("NavMeshGenerator", function () {
       ]
     );
 
-    const scaledPolygons = GridCoordinateConverter.convertFromGridBasis(
+    const scaledPolygons = new GridCoordinateConverter().convertFromGridBasis(
       grid,
       convexPolygons
     );

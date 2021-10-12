@@ -52,6 +52,15 @@ export class RasterizationGrid {
     }
   }
 
+  clear() {
+    for (const row of this.cells) {
+      for (const cell of row) {
+        cell.clear();
+      }
+    }
+    this.regionCount = 0;
+  }
+
   /**
    *
    * @param position the position on the scene
