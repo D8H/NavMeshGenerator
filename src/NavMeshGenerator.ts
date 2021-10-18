@@ -57,7 +57,7 @@ export class NavMeshGenerator {
   }
 
   buildNavMesh(
-    obstacles: IterableIterator<VertexArray>,
+    obstacles: Iterable<Iterable<Point>>,
     obstacleCellPadding: integer
   ): VertexArray[] {
     this.grid.clear();

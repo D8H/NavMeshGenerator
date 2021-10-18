@@ -21,9 +21,9 @@ export class RasterizationCell {
    * 0 means there is an obstacle in the cell.
    * See {@link RegionGenerator}
    */
-  distanceToObstacle: integer;
-  regionID: integer;
-  distanceToRegionCore: integer;
+  distanceToObstacle: integer = Number.MAX_VALUE;
+  regionID: integer = RasterizationCell.NULL_REGION_ID;
+  distanceToRegionCore: integer = 0;
   /**
    * If a cell is connected to one or more external regions then the
    *  flag will be a 4 bit value where connections are recorded as
@@ -39,7 +39,7 @@ export class RasterizationCell {
    *
    * See {@link ContourBuilder}
    */
-  contourFlags: integer;
+  contourFlags: integer = 0;
 
   constructor(x: integer, y: integer) {
     this.x = x;

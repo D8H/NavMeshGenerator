@@ -2,36 +2,49 @@ import { Point, float, integer, VertexArray } from "./CommonTypes";
 import { RasterizationGrid } from "./RasterizationGrid";
 
 /**
- * It rasterizes obstacle objects on a grid.
+ * It rasterizes obstacles on a grid.
+ *
  * It flags cells as obstacle to be used by {@link RegionGenerator}.
  */
 export class ObstacleRasterizer {
   workingNodes: integer[];
+  gridBasisIterable: GridBasisIterable;
 
   constructor() {
     this.workingNodes = new Array<integer>(8);
+    this.gridBasisIterable = new GridBasisIterable();
   }
 
   /**
-   * Rasterize obstacle objects on a grid.
+   * Rasterize obstacles on a grid.
    * @param grid
    * @param obstacles
    */
   rasterizeObstacles(
     grid: RasterizationGrid,
-    obstacles: IterableIterator<VertexArray>
+    obstacles: Iterable<Iterable<Point>>
   ) {
-    for (const polygon of obstacles) {
-      const vertices = polygon.map((vertex) => {
-        const point = { x: 0, y: 0 };
-        grid.convertToGridBasis(vertex, point);
-        return point;
-      });
+    const obstaclesItr = obstacles[Symbol.iterator]();
+    for (
+      let next = obstaclesItr.next();
+      !next.done;
+      next = obstaclesItr.next()
+    ) {
+      const obstacle = next.value;
+      this.gridBasisIterable.set(grid, obstacle);
+      const vertices = this.gridBasisIterable;
+
       let minX = Number.MAX_VALUE;
       let maxX = -Number.MAX_VALUE;
       let minY = Number.MAX_VALUE;
       let maxY = -Number.MAX_VALUE;
-      for (const vertex of vertices) {
+      const verticesItr = vertices[Symbol.iterator]();
+      for (
+        let next = verticesItr.next();
+        !next.done;
+        next = verticesItr.next()
+      ) {
+        const vertex = next.value;
         minX = Math.min(minX, vertex.x);
         maxX = Math.max(maxX, vertex.x);
         minY = Math.min(minY, vertex.y);
@@ -53,7 +66,7 @@ export class ObstacleRasterizer {
   }
 
   private fillPolygon(
-    vertices: Point[],
+    vertices: Iterable<Point>,
     minX: integer,
     maxX: integer,
     minY: integer,
@@ -123,7 +136,7 @@ export class ObstacleRasterizer {
   }
 
   private scanY(
-    vertices: Point[],
+    vertices: Iterable<Point>,
     minX: integer,
     maxX: integer,
     minY: integer,
@@ -136,22 +149,37 @@ export class ObstacleRasterizer {
       const pixelCenterY = pixelY + 0.5;
       //  Build a list of nodes.
       workingNodes.length = 0;
-      let j = vertices.length - 1;
-      for (let i = 0; i < vertices.length; i++) {
+      //let j = vertices.length - 1;
+
+      const verticesItr = vertices[Symbol.iterator]();
+      let next = verticesItr.next();
+      let vertex = next.value;
+      // The iterator always return the same instance.
+      // It must be copied to be save for later.
+      const firstVertexX = vertex.x;
+      const firstVertexY = vertex.y;
+      while (!next.done) {
+        const previousVertexX = vertex.x;
+        const previousVertexY = vertex.y;
+        next = verticesItr.next();
+        if (next.done) {
+          vertex.x = firstVertexX;
+          vertex.y = firstVertexY;
+        } else {
+          vertex = next.value;
+        }
         if (
-          (vertices[i].y <= pixelCenterY && pixelCenterY < vertices[j].y) ||
-          (vertices[j].y < pixelCenterY && pixelCenterY <= vertices[i].y)
+          (vertex.y <= pixelCenterY && pixelCenterY < previousVertexY) ||
+          (previousVertexY < pixelCenterY && pixelCenterY <= vertex.y)
         ) {
           workingNodes.push(
             Math.round(
-              vertices[i].x +
-                ((pixelCenterY - vertices[i].y) /
-                  (vertices[j].y - vertices[i].y)) *
-                  (vertices[j].x - vertices[i].x)
+              vertex.x +
+                ((pixelCenterY - vertex.y) / (previousVertexY - vertex.y)) *
+                  (previousVertexX - vertex.x)
             )
           );
         }
-        j = i;
       }
 
       //  Sort the nodes, via a simple “Bubble” sort.
@@ -189,7 +217,7 @@ export class ObstacleRasterizer {
   }
 
   private scanX(
-    vertices: Point[],
+    vertices: Iterable<Point>,
     minX: integer,
     maxX: integer,
     minY: integer,
@@ -202,22 +230,36 @@ export class ObstacleRasterizer {
       const pixelCenterX = pixelX + 0.5;
       //  Build a list of nodes.
       workingNodes.length = 0;
-      let j = vertices.length - 1;
-      for (let i = 0; i < vertices.length; i++) {
+
+      const verticesItr = vertices[Symbol.iterator]();
+      let next = verticesItr.next();
+      let vertex = next.value;
+      // The iterator always return the same instance.
+      // It must be copied to be save for later.
+      const firstVertexX = vertex.x;
+      const firstVertexY = vertex.y;
+      while (!next.done) {
+        const previousVertexX = vertex.x;
+        const previousVertexY = vertex.y;
+        next = verticesItr.next();
+        if (next.done) {
+          vertex.x = firstVertexX;
+          vertex.y = firstVertexY;
+        } else {
+          vertex = next.value;
+        }
         if (
-          (vertices[i].x < pixelCenterX && pixelCenterX < vertices[j].x) ||
-          (vertices[j].x < pixelCenterX && pixelCenterX < vertices[i].x)
+          (vertex.x < pixelCenterX && pixelCenterX < previousVertexX) ||
+          (previousVertexX < pixelCenterX && pixelCenterX < vertex.x)
         ) {
           workingNodes.push(
             Math.round(
-              vertices[i].y +
-                ((pixelCenterX - vertices[i].x) /
-                  (vertices[j].x - vertices[i].x)) *
-                  (vertices[j].y - vertices[i].y)
+              vertex.y +
+                ((pixelCenterX - vertex.x) / (previousVertexX - vertex.x)) *
+                  (previousVertexY - vertex.y)
             )
           );
         }
-        j = i;
       }
 
       //  Sort the nodes, via a simple “Bubble” sort.
@@ -252,5 +294,47 @@ export class ObstacleRasterizer {
         checkAndFillX(pixelX, workingNodes[i], workingNodes[i + 1]);
       }
     }
+  }
+}
+
+/**
+ * Iterable that converts coordinates to the grid.
+ *
+ * This is an allocation free iterable
+ * that can only do one iteration at a time.
+ */
+class GridBasisIterable implements Iterable<Point> {
+  grid: RasterizationGrid | null;
+  sceneVertices: Iterable<Point>;
+  verticesItr: Iterator<Point>;
+  result: IteratorResult<Point, any>;
+
+  constructor() {
+    this.grid = null;
+    this.sceneVertices = [];
+    this.verticesItr = this.sceneVertices[Symbol.iterator]();
+    this.result = {
+      value: { x: 0, y: 0 },
+      done: false,
+    };
+  }
+
+  set(grid: RasterizationGrid, sceneVertices: Iterable<Point>) {
+    this.grid = grid;
+    this.sceneVertices = sceneVertices;
+  }
+
+  [Symbol.iterator]() {
+    this.verticesItr = this.sceneVertices[Symbol.iterator]();
+    return this;
+  }
+
+  next() {
+    const next = this.verticesItr.next();
+    if (next.done) {
+      return next;
+    }
+    this.grid!.convertToGridBasis(next.value, this.result.value);
+    return this.result;
   }
 }

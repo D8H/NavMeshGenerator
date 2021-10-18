@@ -12,6 +12,18 @@ import { RasterizationGrid } from "./RasterizationGrid";
  * http://www.critterai.org/projects/nmgen_study/contourgen.html
  */
 export class ContourBuilder {
+  private workingRawVertices: ContourPoint[];
+  private workingSimplifiedVertices: ContourPoint[];
+
+  constructor() {
+    // These are working lists whose content changes with each iteration
+    // of the up coming loop. They represent the detailed and simple
+    // contour vertices.
+    // Initial sizing is arbitrary.
+    this.workingRawVertices = new Array<ContourPoint>(256);
+    this.workingSimplifiedVertices = new Array<ContourPoint>(64);
+  }
+
   /**
    * Generates a contour set from the provided {@link RasterizationGrid}
    *
@@ -115,15 +127,6 @@ export class ContourBuilder {
       }
     }
 
-    // These are working lists whose content changes with each iteration
-    // of the up coming loop. They represent the detailed and simple
-    // contour vertices.
-    // Initial sizing is arbitrary.
-    const workingRawVertices = new Array<ContourPoint>(256);
-    workingRawVertices.length = 0;
-    const workingSimplifiedVertices = new Array<ContourPoint>(64);
-    workingSimplifiedVertices.length = 0;
-
     // Loop through all cells looking for cells on the edge of a region.
     //
     // At this point, only cells with flags != 0 are edge cells that
@@ -145,8 +148,8 @@ export class ContourBuilder {
           continue;
         }
 
-        workingRawVertices.length = 0;
-        workingSimplifiedVertices.length = 0;
+        this.workingRawVertices.length = 0;
+        this.workingSimplifiedVertices.length = 0;
 
         // The cell is part of an unprocessed region's contour.
         // Locate a direction of the cell's edge which points toward
@@ -158,20 +161,25 @@ export class ContourBuilder {
         // We now have a cell that is part of a contour and a direction
         // that points to a different region (obstacle or real).
         // Build the contour.
-        this.buildRawContours(grid, cell, startDirection, workingRawVertices);
+        this.buildRawContours(
+          grid,
+          cell,
+          startDirection,
+          this.workingRawVertices
+        );
         // Perform post processing on the contour in order to
         // create the final, simplified contour.
         this.generateSimplifiedContour(
           cell.regionID,
-          workingRawVertices,
-          workingSimplifiedVertices,
+          this.workingRawVertices,
+          this.workingSimplifiedVertices,
           threshold
         );
 
         // The CritterAI implementation filters polygons with less than
         // 3 vertices, but they are needed to filter vertices in the middle
         // (not on an obstacle region border).
-        const contour = Array.from(workingSimplifiedVertices);
+        const contour = Array.from(this.workingSimplifiedVertices);
         contours.push(contour);
         contoursByRegion[cell.regionID] = contour;
       }

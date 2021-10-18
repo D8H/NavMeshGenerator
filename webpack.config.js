@@ -19,7 +19,7 @@ module.exports = function (env, argv) {
     },
     plugins: [new CleanWebpackPlugin()],
     resolve: {
-      extensions: [".ts", ".js"],
+      extensions: [".ts"],
     },
     module: {
       rules: [
@@ -28,14 +28,20 @@ module.exports = function (env, argv) {
           use: "ts-loader",
           exclude: /node_modules/,
         },
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          // Configure babel to look for the root babel.config.json with rootMode.
-          use: { loader: "babel-loader", options: { rootMode: "upward" } },
-        },
       ],
     },
     devtool: isDev ? "eval-source-map" : "source-map",
   };
+  module.exports = {
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      }),
+    ],
+  },
+};
 };

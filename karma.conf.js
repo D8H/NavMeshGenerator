@@ -29,7 +29,6 @@ module.exports = function (config) {
 				"expect.js"
 			],
 			lib: ["DOM", "ES5", "ES2015"],
-			downlevelIteration: true
 		},
 		exclude: ["node_modules"]
 	}

@@ -29,7 +29,7 @@ The implementation used in this library differs with the following:
 ### An isometric example
 This is a modified version of an official example of [GDevelop](https://gdevelop-app.com/) where a character moves to the pointer with a left click. The art was done by [Mickael Hoarau](https://www.youtube.com/channel/UC0Tm56J3LIj0PcjGQdvy_QA).
 
-[Try it in browser](https://games.gdevelop-app.com/game-4f902160-0daa-4db9-bfca-4d792309aa15/index.html) (it might make some sounds)
+[Try it in browser](https://games.gdevelop-app.com/game-4f902160-0daa-4db9-bfca-4d792309aa15/index.html) (it might makes some sounds)
 
 ![GDevelopNavMeshTiny](https://user-images.githubusercontent.com/2611977/136819963-cd38ef54-070a-4aec-9acd-a521d85e5dbc.png)
 
@@ -68,7 +68,7 @@ const obstacles = [[
 ]];
 const obstacleCellPadding = 0;
 const navMeshPolygons = navMeshGenerator.buildNavMesh(
-  obstacles.values(),
+  obstacles,
   obstacleCellPadding
 );
 ```
@@ -84,6 +84,10 @@ import { NavMesh } from "navmesh";
 
 ## Changelog
 
-Version 1.0.0
+### Version 1.0.3
+
+- ES5 compatibility
+
+### Version 1.0.0
 
 - First version

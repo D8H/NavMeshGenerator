@@ -153,10 +153,9 @@ describe("NavMeshGenerator", function () {
   it("can build an empty mesh", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [createRectangle(160, 160, 400, 400)].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      createRectangle(160, 160, 400, 400),
+    ]);
     checkObstacles(
       grid, //
       "##################\n" +
@@ -257,7 +256,7 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh without any obstacle", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(grid, [].values());
+    new ObstacleRasterizer().rasterizeObstacles(grid, []);
     checkObstacles(
       grid, //
       "..................\n" +
@@ -379,10 +378,9 @@ describe("NavMeshGenerator", function () {
   it("keeps the vertices of a square aligned on the grid", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [createRectangle(160, 160, 200, 160)].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      createRectangle(160, 160, 200, 160),
+    ]);
     checkObstacles(
       grid, //
       "..................................\n" +
@@ -608,7 +606,7 @@ describe("NavMeshGenerator", function () {
     // The mesh is the same as the previous test case.
     const navMeshGenerator = new NavMeshGenerator(0, 0, 320, 320, 10);
     const navMesh = navMeshGenerator.buildNavMesh(
-      [createRectangle(160, 160, 200, 160)].values(),
+      [createRectangle(160, 160, 200, 160)],
       0
     );
     checkPolygons(
@@ -650,7 +648,7 @@ describe("NavMeshGenerator", function () {
     const navMeshGenerator = new NavMeshGenerator(0, 0, 320, 320, 10);
     {
       const navMesh = navMeshGenerator.buildNavMesh(
-        [createRectangle(160, 160, 200, 160)].values(),
+        [createRectangle(160, 160, 200, 160)],
         0
       );
       checkPolygons(
@@ -696,7 +694,7 @@ describe("NavMeshGenerator", function () {
       const verticalRectangle = createRectangle(160, 160, 2, 200, Math.PI / 4);
 
       const navMesh = navMeshGenerator.buildNavMesh(
-        [horizontalRectangle, verticalRectangle].values(),
+        [horizontalRectangle, verticalRectangle],
         0
       );
 
@@ -796,10 +794,10 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [horizontalRectangle, verticalRectangle].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      horizontalRectangle,
+      verticalRectangle,
+    ]);
     checkObstacles(
       grid, //
       "..................\n" +
@@ -878,10 +876,10 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [horizontalRectangle, verticalRectangle].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      horizontalRectangle,
+      verticalRectangle,
+    ]);
     checkObstacles(
       grid, //
       "..................................\n" +
@@ -1200,10 +1198,10 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [horizontalRectangle, verticalRectangle].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      horizontalRectangle,
+      verticalRectangle,
+    ]);
     checkObstacles(
       grid, //
       "..................\n" +
@@ -1422,10 +1420,10 @@ describe("NavMeshGenerator", function () {
 
     const grid = new RasterizationGrid(0, 0, 320, 320, 10, 10);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [horizontalRectangle, verticalRectangle].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      horizontalRectangle,
+      verticalRectangle,
+    ]);
     checkObstacles(
       grid, //
       "..................................\n" +
@@ -1803,10 +1801,9 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh for a diamond with vertices on cell border", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [createDiamond(160, 160, 160, 160)].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      createDiamond(160, 160, 160, 160),
+    ]);
     checkObstacles(
       grid, //
       "..................\n" +
@@ -2009,10 +2006,9 @@ describe("NavMeshGenerator", function () {
   it("can build a mesh for diamond with vertices on cell center", function () {
     const grid = new RasterizationGrid(0, 0, 320, 320, 20, 20);
 
-    new ObstacleRasterizer().rasterizeObstacles(
-      grid,
-      [createDiamond(170, 170, 160, 160)].values()
-    );
+    new ObstacleRasterizer().rasterizeObstacles(grid, [
+      createDiamond(170, 170, 160, 160),
+    ]);
     checkObstacles(
       grid, //
       "..................\n" +
