@@ -29,18 +29,20 @@ The implementation used in this library differs with the following:
 ### An isometric example
 This is a modified version of an official example of [GDevelop](https://gdevelop-app.com/) where a character moves to the pointer with a left click. The art was done by [Mickael Hoarau](https://www.youtube.com/channel/UC0Tm56J3LIj0PcjGQdvy_QA).
 
-[Try it in browser](https://games.gdevelop-app.com/game-4f902160-0daa-4db9-bfca-4d792309aa15/index.html) (it might makes some sounds)
+[Try it on itch.io](https://d8h.itch.io/navmesh-isometric-demo)
 
 ![GDevelopNavMeshTiny](https://user-images.githubusercontent.com/2611977/136819963-cd38ef54-070a-4aec-9acd-a521d85e5dbc.png)
 
 ### An AI example
 This is a modified version of an official example of [GDevelop](https://gdevelop-app.com/) where enemies follow the player.
 
-[Try it in browser](https://games.gdevelop-app.com/game-05f6bf02-0a65-4cc9-bb77-c7c7e0b3c1ce/index.html)
+[Try it on itch.io](https://d8h.itch.io/navmesh-ai-demo)
+
 ### Squares at random positions
-[Try it in browser](https://games.gdevelop-app.com/game-3dfb74dc-38a8-4475-bef9-bf1ae8424125/index.html)
+[Try it on itch.io](https://d8h.itch.io/navmesh-random-obstacles-demo)
+
 ### Two sizes of moving objects and obstacle dragging
-[Try it in browser](https://games.gdevelop-app.com/game-e5bac69a-0625-45fa-b523-45981aa74518/index.html)
+[Try it on itch.io](https://d8h.itch.io/navmesh-draggable-obstacles-demo)
 
 ## How to use it
 The algorithm builds a mesh from a given area and a list of polygon obstacles.
