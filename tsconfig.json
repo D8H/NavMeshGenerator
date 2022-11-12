@@ -1,13 +1,14 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "esnext",
         "noImplicitAny": true,
         "outDir": "./dist",
         "target": "ES5",
         "sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
+        "declarationDir": "./dist/dts",
         "types" : [
             "mocha",
             "expect.js"

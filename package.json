@@ -5,6 +5,9 @@
   "description": "A JS library for generating navigation meshes from obstacles",
   "main": "dist/navmeshgenerator.js",
   "types": "dist/index.d.ts",
+  "typescript": {
+    "definition": "dist/index.d.ts"
+  },
   "files": [
     "src",
     "dist"
@@ -15,14 +18,14 @@
     "test:firefox": "karma start --browsers Firefox --single-run",
     "test:firefox:watch": "karma start --browsers Firefox",
     "tsc": "tsc",
-    "build": "webpack --mode production",
-    "build:watch": "webpack --mode development --watch",
+    "build": "rollup -c",
+    "build:dev": "rollup -c -w",
     "prepublishOnly": "npm run build",
     "format": "prettier --write \"src/**/*.ts\"",
     "check-format": "prettier --list-different \"src/**/*.ts\""
   },
-  "dependencies": {},
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^5.2.7",
     "expect.js": "^0.3.1",
@@ -33,11 +36,10 @@
     "karma-typescript": "latest",
     "mocha": "^6.2.0",
     "prettier": "2.1.2",
-    "typescript": "latest",
-    "webpack": "^5.40.0",
-    "webpack-cli": "^4.9.0",
-    "clean-webpack-plugin": "^3.0.0",
-    "ts-loader": "^9.2.3"
+    "rollup": "^2.66.1",
+    "rollup-plugin-dts": "^4.1.0",
+    "ts-loader": "^9.2.3",
+    "typescript": "latest"
   },
   "repository": {
     "type": "git",
